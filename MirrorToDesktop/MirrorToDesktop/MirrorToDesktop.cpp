@@ -2,6 +2,9 @@
 #include <Windows.h>
 
 #define MIRROR_WINAMP
+//#define MIRROR_CLASS NULL
+//#define MIRROR_CAPTION NULL
+//#define MIRROR_HWND 0xDEADBEEF
 #define MIRROR_FPS 30
 
 // Defines from wa_ipc.h
@@ -59,8 +62,10 @@ int main()
 #ifdef MIRROR_WINAMP
     HWND winampWnd = FindWindowA("Winamp v1.x", NULL);
     HWND copyWnd = (HWND)SendMessage(winampWnd, WM_WA_IPC, 0, IPC_GETVISWND);
+#elif defined(MIRROR_CLASS) && defined(MIRROR_CAPTION)
+    HWND copyWnd = FindWindowA(MIRROR_CLASS, MIRROR_CAPTION);
 #else
-    HWND copyWnd = (HWND)0xDEADBEEF;
+    HWND copyWnd = (HWND)MIRROR_HWND;
 #endif
 
     // https://stackoverflow.com/a/14407301

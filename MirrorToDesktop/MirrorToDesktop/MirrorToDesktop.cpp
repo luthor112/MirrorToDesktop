@@ -5,6 +5,7 @@
 //#define MIRROR_CLASS NULL
 //#define MIRROR_CAPTION NULL
 //#define MIRROR_HWND 0xDEADBEEF
+#define HIDE_CONSOLE
 #define MIRROR_FPS 30
 
 // Defines from wa_ipc.h
@@ -74,6 +75,12 @@ int main()
     GetWindowRect(copyWnd, &rect);
 
     std::cout << "Start mirroring..." << std::endl;
+#ifdef HIDE_CONSOLE
+    if (!FreeConsole())
+    {
+        std::cout << "Could not detach from console." << std::endl;
+    }
+#endif
     while (TRUE) {
         // https://stackoverflow.com/a/14407301
         BitBlt(hDC_Desktop, 0, 0, rect.right - rect.left, rect.bottom - rect.top, TargetDC, 0, 0, SRCCOPY);

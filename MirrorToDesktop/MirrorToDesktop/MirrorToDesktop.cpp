@@ -57,9 +57,10 @@ int main()
     std::cout << "Clearing wallpaper..." << std::endl;
     RECT desktopRect;
     GetWindowRect(hwnd_Desktop, &desktopRect);
-    HBRUSH blueBrush = CreateSolidBrush(RGB(0, 0, 0));
-    FillRect(hDC_Desktop, &desktopRect, blueBrush);
+    HBRUSH blackBrush = CreateSolidBrush(RGB(0, 0, 0));
+    FillRect(hDC_Desktop, &desktopRect, blackBrush);
 
+    std::cout << "Finding target window..." << std::endl;
 #ifdef MIRROR_WINAMP
     HWND winampWnd = FindWindowA("Winamp v1.x", NULL);
     HWND copyWnd = (HWND)SendMessage(winampWnd, WM_WA_IPC, 0, IPC_GETVISWND);
@@ -69,21 +70,35 @@ int main()
     HWND copyWnd = (HWND)MIRROR_HWND;
 #endif
 
+    if (copyWnd == NULL)
+    {
+        std::cout << "Window not found, exiting." << std::endl;
+        return 1;
+    }
+
     // https://stackoverflow.com/a/14407301
     HDC TargetDC = GetDC(copyWnd);
     RECT rect;
     GetWindowRect(copyWnd, &rect);
 
-    std::cout << "Start mirroring..." << std::endl;
+    std::cout << "Mirroring..." << std::endl;
 #ifdef HIDE_CONSOLE
     if (!FreeConsole())
     {
         std::cout << "Could not detach from console." << std::endl;
     }
 #endif
-    while (TRUE) {
+
+    int cx_Desktop = desktopRect.right - desktopRect.left;
+    int cy_Desktop = desktopRect.bottom - desktopRect.top;
+    int cx = rect.right - rect.left;
+    int cy = rect.bottom - rect.top;
+    int x = (cx_Desktop - cx) / 2;
+    int y = (cy_Desktop - cy) / 2;
+    while (TRUE)
+    {
         // https://stackoverflow.com/a/14407301
-        BitBlt(hDC_Desktop, 0, 0, rect.right - rect.left, rect.bottom - rect.top, TargetDC, 0, 0, SRCCOPY);
+        BitBlt(hDC_Desktop, x, y, cx, cy, TargetDC, 0, 0, SRCCOPY);
         Sleep(1000 / MIRROR_FPS);
     }
 
